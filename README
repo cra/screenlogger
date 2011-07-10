@@ -20,7 +20,7 @@ logger.db.
 TODO: создавать её через ./init какой-нибудь
 Примерно так, lol:
 sqlite logger.db
-create table progs(text, when INTEGER); 
+create table progs(class text, name text, date text); 
 
 
 See also
