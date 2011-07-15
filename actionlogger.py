@@ -33,7 +33,7 @@ class ActionLogger(object):
     """
     Wrapper for screenshot and db dump
     """
-    def __init__(self, dbname="logger.db", prefix="/tmp/idid_"):
+    def __init__(self, dbname, prefix):
         self.dbname = dbname
         self.prefix = prefix
 

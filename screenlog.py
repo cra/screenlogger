@@ -10,14 +10,12 @@ TODO
 screenshot resize
 store path to screenshot in db
 analyze
-pythonize (remove shell calls, use py-xlib)
-
-sqlite3 db creation:
-sqlite logger.db
-create table progs(text, when INTEGER);
 
 """
 
+
+import sys
+from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 
 from actionlogger import ActionLogger
 
@@ -25,7 +23,16 @@ from actionlogger import ActionLogger
 if __name__ == "__main__":
     ''' write test info in default db for ActionLogger '''
 
-    act_logger = ActionLogger()
+    parser = ArgumentParser(prog=sys.argv[0], formatter_class=ArgumentDefaultsHelpFormatter)
+    parser.add_argument('--dbname',
+        action='store',
+        default='logger.db',
+        help="sqlite3 DB to use")
+    parser.add_argument('--prefix',
+        default='i_did_',
+        help="Prefix for screenshots")
+    args = parser.parse_args(sys.argv[1:])
+    act_logger = ActionLogger(args.dbname, args.prefix)
     act_logger.proceed()
 
 
