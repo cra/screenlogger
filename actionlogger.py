@@ -24,6 +24,7 @@ import os
 import sys
 import shlex
 import subprocess
+import logging
 from datetime import datetime as dt
 from time import time
 from Xlib.display import Display
@@ -46,7 +47,8 @@ class ActionLogger(object):
         try:
             self.con = sqlite3.connect(dbname)
         except OSError:
-            print >>sys.stderr, "WTF?! '%s' DB not found" % dbname
+            logging.exception("DB '%s' not found" % dbname)
+            raise
 
 
     def proceed(self):
@@ -56,19 +58,18 @@ class ActionLogger(object):
         screenshot_filename = "%s%s" % (self.prefix, timestamp)
         self.grab_screenshot(screenshot_filename)
 
+        logging.warning("Saved screenshot %s" % screenshot_filename)
+        logging.info("Active window %s, title %s." % (self.wm_info, self.wm_name))
+
         try:
             with self.con as con:
                 con.isolation_level = None
                 con.execute("insert into programs values ('%s', '%s', '%s')" \
                     % (self.wm_info, self.wm_name, timestamp))
+                logging.info("Database record stored.")
         except sqlite3.IntegrityError:
-            print >>sys.stderr, "Running way too fast?"
-
-        print "screenshot: %s\nActive window %s, title %s." % (
-            screenshot_filename,
-            self.wm_info,
-            self.wm_name,
-        )
+            logging.exception("sqlite3 found a same entry out there.")
+            raise
 
 
     def grab_screenshot(self, filename):
@@ -76,7 +77,7 @@ class ActionLogger(object):
 
         cmd_line = "import -window root " + filename + ".png"
         if os.system(cmd_line):
-            print >>sys.stderr, "Failed to take a screenshot"
+            logging.exception("Failed to take a screenshot")
             raise Exception
 
 
